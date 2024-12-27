@@ -20,6 +20,8 @@ $targets = @("google.com", "8.8.8.8", "1.1.1.1", "ntp.br")
 # DNS settings validation test
 $dnsHost = @("google.com", "ntp.br", "meuip.com")
 
+
+# DNS Validation
 foreach ($dnsHosts in $dnsHost) {
     Write-Host "Testando verificação de DNS em $dnsHosts..." -ForegroundColor Yellow
     $dnsResult = Resolve-DnsName -Name $dnsHosts
@@ -41,11 +43,15 @@ foreach ($dnsHosts in $dnsHost) {
         Add-Content -Path $logFile -Value $errorMessage
         Write-Host $errorMessage -ForegroundColor Red
     }
+
+    Add-Content -Path $logFile -Value "[$(Get-Date)] $message"
 }
 
 Add-Content -Path $logFile -Value "Teste básico de conexão em [$(Get-Date)]"
 Add-Content -Path $logFile -Value ""
 
+
+# Connectivity Test
 foreach ($target in $targets) {
     Write-Host ""
     Write-Host "Testando conectividade com $target..." -ForegroundColor Yellow
@@ -76,6 +82,8 @@ foreach ($target in $targets) {
 Add-Content -Path $logFile -Value "---------------------------------"
 Add-Content -Path $logFile -Value "Monitoramento de dispositivos em [$(Get-Date)]"
 
+
+# ICMP protocol on Endpoints
 function Testar-Dispositivo {
     param ( [string]$ip )
 

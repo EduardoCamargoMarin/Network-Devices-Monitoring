@@ -14,3 +14,6 @@ Scripts regarding computer network tests and automation procedures using Power S
 # Version
 1. 1.0.0 - Connectivity test on Endpoints
 2. 1.0.1 - DNS Validation | Connectivity tests on websites | + previous features
+
+# Add Ups
+Addtional features for specific network test, it works as an individual test giving an add up content, regarding the network monitoring you are working on

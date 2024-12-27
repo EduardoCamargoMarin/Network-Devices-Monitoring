@@ -8,5 +8,5 @@ Scripts regarding computer network tests and automation procedures using Power S
 4. The script will generate a paste called "Scripts" on (C:)
 
 # Note
-1. This scripts are small tests regarding the basic procedure in the IT departament whe dealing with Service Desk in computer networking.
+1. This scripts are small tests regarding the basic procedure in the IT departament when dealing with Service Desk in computer networking.
 2. If you have RMM in you company, you can automate your scripts using "Task Scheduler" or create a setting to schedule the script on the user's computer.

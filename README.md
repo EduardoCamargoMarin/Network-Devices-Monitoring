@@ -16,4 +16,8 @@ Scripts regarding computer network tests and automation procedures using Power S
 2. 1.0.1 - DNS Validation | Connectivity tests on websites | + previous features
 
 # Add Ups
-Addtional features for specific network test, it works as an individual test giving an add up content, regarding the network monitoring you are working on
+Addtional features for specific network test, it works as an individual test giving an add up content, regarding the network monitoring you are working on.
+
+# Roadmap for future features
+1. Add up's will have logs
+2. Possibility to change the settings using the command prompt instead of changing the code itself

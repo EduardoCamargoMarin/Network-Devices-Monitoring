@@ -12,5 +12,5 @@ Scripts regarding computer network tests and automation procedures using Power S
 2. If you have RMM in you company, you can automate your scripts using "Task Scheduler" or create a setting to schedule the script on the user's computer.
 
 # Version
-1.0.0 - Connectivity test on Endpoints
-1.0.1 - DNS Validation | Connectivity tests on websites | + previous features
+1. 1.0.0 - Connectivity test on Endpoints
+2. 1.0.1 - DNS Validation | Connectivity tests on websites | + previous features

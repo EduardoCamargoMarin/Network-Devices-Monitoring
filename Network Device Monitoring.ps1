@@ -123,6 +123,174 @@ function IP-Configuration {
 }
 
 
+# Admin check function
+function Admin-Verify {
+    $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $admin) {
+        Write-Host "Este script requer permissões administrativas. Reiniciando com privilégios elevados..." -ForegroundColor Yellow
+
+        # Admin PS path
+        $scriptPath = $PSCommandPath
+
+        # Relaunch PS
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        exit
+    }
+}
+
+# Check if we are using Admin privilege
+Admin-Verify
+
+
+# option 5 selected, check if Chocolatey is installed before selecting the installation options.
+
+function Chocolatey {
+    if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
+        Write-Host "Chocolatey não está instalado. Instalando agora..." -ForegroundColor Yellow
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        if (Get-Command choco -ErrorAction SilentlyContinue) {
+            Write-Host "Chocolatey instalado com sucesso!" -ForegroundColor Green
+        } else {
+            Write-Host "Erro ao instalar o Chocolatey. Verifique sua conexão ou permissões." -ForegroundColor Red
+            return $false
+        }
+    } else {
+        Write-Host "Chocolatey já está instalado." -ForegroundColor Green
+    }
+    return $true
+    Pause
+}
+
+# Avoid downloading twice
+function Is-ProgramInstalled {
+    param([string]$programName)
+    $program = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*$programName*" }
+    return $program -ne $null
+}
+
+# Function to select which program to install
+
+function Install-Programs-Menu {
+    while($true) {
+        Clear-Host
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "          Pacotes de instalação         " -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "1. Advanced IP Scanner"
+        Write-Host ""
+        Write-Host "2. Crystal Disk Info"
+        Write-Host ""
+        Write-Host "3. Nmap"
+        Write-Host ""
+        Write-Host "4. WireShark"
+        Write-Host ""
+        Write-Host "5. Rufus"
+        Write-Host ""
+        Write-Host "6. Voltar"
+        $opcao = Read-Host "Escolha uma opção"
+
+        switch($opcao) {
+        
+        "1" {
+        $program = "advanced-ip-scanner"
+        if (Is-ProgramInstalled -programName $program) {
+            Write-Host "$program já está instalado." -ForegroundColor Yellow
+        } else {
+            try {
+                Write-Host "Instalando $program..." -ForegroundColor Green
+                choco install $program -y
+                Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+            } 
+            catch {
+            # if an error occurs, you must download the program by hand.
+                Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+           }
+           Pause
+          }
+        "2" {
+        $program = "crystaldiskinfo"
+        if (Is-ProgramInstalled -programName $program) {
+            Write-Host "$program já está instalado." -ForegroundColor Yellow
+        } else {
+            try {
+                Write-Host "Instalando $program..." -ForegroundColor Green
+                choco install $program -y
+                Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+            } 
+            catch {
+            # if an error occurs, you must download the program by hand.
+                Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+           }
+           Pause             
+          }
+        "3" {
+        $program = "nmap"
+        if (Is-ProgramInstalled -programName $program) {
+            Write-Host "$program já está instalado." -ForegroundColor Yellow
+        } else {
+            try {
+                Write-Host "Instalando $program..." -ForegroundColor Green
+                choco install $program -y
+                Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+            } 
+            catch {
+            # if an error occurs, you must download the program by hand.
+                Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+           }
+           Pause             
+          }
+        "4" {
+        $program = "wireshark"
+        if (Is-ProgramInstalled -programName $program) {
+            Write-Host "$program já está instalado." -ForegroundColor Yellow
+        } else {
+            try {
+                Write-Host "Instalando $program..." -ForegroundColor Green
+                choco install $program -y
+                Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+            } 
+            catch {
+            # if an error occurs, you must download the program by hand.
+                Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+           }
+           Pause             
+          }
+        "5" {
+        $program = "rufus"
+        if (Is-ProgramInstalled -programName $program) {
+            Write-Host "$program já está instalado." -ForegroundColor Yellow
+        } else {
+            try {
+                Write-Host "Instalando $program..." -ForegroundColor Green
+                choco install $program -y
+                Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+            } 
+            catch {
+            # if an error occurs, you must download the program by hand.
+                Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+           } 
+           Pause            
+          }
+
+        "6" { return menu}
+        
+        
+  }
+ }
+}
+
+
+
+
+
 
 
 # Show Menu
@@ -136,13 +304,15 @@ function menu {
         Write-Host ""
         Write-Host "1. Validação de DNS"
         Write-Host ""
-        Write-Host "2. Configuração da rede para teste de dispositivos"
+        Write-Host "2. Configuração da rede"
         Write-Host ""
-        Write-Host "3. Verificação de status dos dispositivos na rede (SELECIONE A OPÇÃO 2 ANTES DE PROSSEGUIR)"
+        Write-Host "3. Verificação dos status dos dispositivos na rede (SELECIONE A OPÇÃO 2 ANTES DE PROSSEGUIR)"
         Write-Host ""
         Write-Host "4. Teste de conectividade para internet"
         Write-Host ""
-        Write-Host "5. Sair"
+        Write-Host "5. Instalação de programas"
+        Write-Host ""
+        Write-Host "6. Sair"
         Write-Host ""
         $opcao = Read-Host "Escolha uma opção"
 
@@ -179,8 +349,13 @@ function menu {
                 Connectivity-Test 
                 Write-Host "Teste concluído. Resultados salvos em $logFile" -ForegroundColor Green
                 }
-
+            
             "5" { 
+                Chocolatey
+                Install-Programs-Menu 
+                }
+
+            "6" { 
             Write-Host "Saindo..." -ForegroundColor Yellow 
             Exit 
             }

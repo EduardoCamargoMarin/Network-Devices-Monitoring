@@ -1,5 +1,5 @@
-# PowerShell
-Scripts regarding computer network tests and automation procedures using Power Shell ISE.
+# Network Device Monitoring
+Scripts regarding computer network tests and automation procedures.
 
 # How to use
 1. upload the .ps1 file on the user's computer
@@ -8,12 +8,13 @@ Scripts regarding computer network tests and automation procedures using Power S
 4. Select the test option you want to execute
 
 # Note
-1. This scripts are small tests regarding the basic procedure in the IT departament when dealing with Service Desk in computer networking. 
+1. The main focus is basic test procedure in the IT departament when dealing with Service Desk in computer networking and it has features to download specific IT softwares and useful tools. 
 
 # Version
 1. 1.0.0 - Device status by IPV4.
 2. 1.0.1 - DNS Validation | Connectivity tests on websites.
 3. 1.0.2 - Added user's menu to select the test option | Added a feature to change the network settings for device status.
+4. 1.0.3 - Added a new menu to install specific softwares using the package manager "chocolatey".
 
 # Add Ups
 1. Addtional features for specific network test, it works as an individual test giving an add up content, regarding the network monitoring you are working on.
@@ -21,5 +22,4 @@ Scripts regarding computer network tests and automation procedures using Power S
 
 # Roadmap for future features
 1. Add up's will have logs
-2. Possibility to change the settings using the command's prompt instead of changing the code itself - 1.0.2 Patch
-3. Option to download IT basic tools
+2. Possibility to do a quick and full Windows Defender Scan.

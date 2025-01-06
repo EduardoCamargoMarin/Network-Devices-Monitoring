@@ -189,7 +189,9 @@ function Install-Programs-Menu {
         Write-Host ""
         Write-Host "5. Rufus"
         Write-Host ""
-        Write-Host "6. Voltar"
+        Write-Host "6. Básico (Chrome, Firefox, AdobeReader, VLC, Jr8, Zoom, Winrar)"
+        Write-Host ""
+        Write-Host "7. Voltar"
         $opcao = Read-Host "Escolha uma opção"
 
         switch($opcao) {
@@ -280,7 +282,26 @@ function Install-Programs-Menu {
            Pause            
           }
 
-        "6" { return menu}
+        "6" { 
+            $programs = @("winrar", "googlechrome", "firefox", "vlc", "adobereader", "jre8", "zoom")
+    
+            foreach ($program in $programs) {
+                if (Is-ProgramInstalled -programName $program) {
+                    Write-Host "$program já está instalado." -ForegroundColor Yellow
+             } else {
+                 try {
+                        Write-Host "Instalando $program..." -ForegroundColor Green
+                     choco install $program -y
+                     Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+                  } 
+                 catch {
+                    # if an error occurs, you must download the program by hand.
+                     Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+        }
+    }
+            }
+        "7" { return menu}
         
         
   }
@@ -288,7 +309,72 @@ function Install-Programs-Menu {
 }
 
 
+# Full scan Defender
+function Run-FullScan {
+    Write-Host "Iniciando verificação completa do Windows Defender..." -ForegroundColor Green
+    try {
+        Start-MpScan -ScanType FullScan #initialize Windows Scan
 
+        Write-Host "Verificação completa finalizada!" -ForegroundColor Green
+    } 
+    catch {
+        Write-Host "Erro ao executar verificação completa do Windows Defender: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+# Quick scan Defender
+function Run-QuickScan {
+    Write-Host "Iniciando verificação rápida do Windows Defender..." -ForegroundColor Green
+    try {
+        Start-MpScan -ScanType QuickScan #initialize Windows Scan
+
+        Write-Host "Verificação rápida finalizada!" -ForegroundColor Green
+    } 
+    catch {
+        Write-Host "Erro ao executar verificação rápida do Windows Defender: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+
+
+function Windows-Update {
+    try {
+        Write-Host "Verificando atualização do Windows..." -ForegroundColor Yellow
+
+        # Checking if PSWindowsUpdate is installed
+        if(!(Get-Module -ListAvailable -Name PSWindowsUpdate)) {
+            Write-Host "PSWindowsUpdate não encontrado. Instalando módulo..." -ForegroundColor Cyan
+            Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
+        }
+
+        #import module
+        Import-Module PSWindowsUpdate
+
+
+        #Show available updates
+        $update = Get-WindowsUpdate
+        
+        if($update) {
+            Write-Host "As seguintes atualizações estão disponíveis:" -ForegroundColor Cyan
+            $update | Format-Table -AutoSize
+
+
+        # User's confirmation
+        $confirm = Read-Host "Deseja instalar todas as atualizações? O COMPUTADOR PODE REINICIALIZAR, SALVAR TODOS OS ARQUIVOS ANTES DE PROSSEGUIR!! (S/N):  "
+        if($confirm -eq "S") {
+            Write-Host "Instalando atualizações. Isso pode levar alguns minutos."
+             Install-WindowsUpdate -AcceptAll -ForceInstall -AutoReboot
+            Write-Host "Atualizações instaladas com sucesso!" -ForegroundColor Green
+        }
+        else {
+            Write-Host "Instalação não realizada. Nenhuma atualização disponível" -ForegroundColor Red
+        }
+    }
+}
+catch {
+        Write-Host "Erro ao verificar ou instalar atualizações: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
 
 
 
@@ -304,15 +390,24 @@ function menu {
         Write-Host ""
         Write-Host "1. Validação de DNS"
         Write-Host ""
-        Write-Host "2. Configuração da rede"
+        Write-Host "2. Configuração da rede para teste de dispositivos"
         Write-Host ""
-        Write-Host "3. Verificação dos status dos dispositivos na rede (SELECIONE A OPÇÃO 2 ANTES DE PROSSEGUIR)"
+        Write-Host "3. Verificação dos status dos dispositivos na rede (Requer a configuração do item 2)"
         Write-Host ""
         Write-Host "4. Teste de conectividade para internet"
         Write-Host ""
-        Write-Host "5. Instalação de programas"
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "          Menu do computador            " -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "5. Pacotes de instalação"
         Write-Host ""
-        Write-Host "6. Sair"
+        Write-Host "6. Verificação Rápida do Windows Defender (recomendado)"
+        Write-Host ""
+        Write-Host "7. Verificação Completa do Windows Defender (Processo demorado. Usar em último recurso)"
+        Write-Host ""
+        Write-Host "8. Executar Windows Update"
+        Write-Host ""
+        Write-Host "9. Sair"
         Write-Host ""
         $opcao = Read-Host "Escolha uma opção"
 
@@ -334,7 +429,7 @@ function menu {
 
             "3" { 
                 if (-not $enderecamento -or -not $startIP -or -not $endIP) {
-                Write-Host "Por favor, configure a rede antes de iniciar o teste." -ForegroundColor Red
+                Write-Host "Por favor, configure a rede selecionando o item 2 antes de iniciar o teste." -ForegroundColor Red
             } else {
                 Write-Host "Iniciando o teste de conectividade para os IPs na faixa: $enderecamento$startIP a $enderecamento$endIP" -ForegroundColor Yellow
                 for ($i = $startIP; $i -le $endIP; $i++) {
@@ -355,10 +450,17 @@ function menu {
                 Install-Programs-Menu 
                 }
 
-            "6" { 
-            Write-Host "Saindo..." -ForegroundColor Yellow 
-            Exit 
-            }
+            "6" { Run-QuickScan }
+
+            "7" { Run-FullScan }
+
+            "8" { Windows-Update }
+
+            "9" { 
+                Write-Host "Saindo..." -ForegroundColor Yellow 
+                Exit
+             }
+
             default { Write-Host "Opção inválida. Tente novamente." -ForegroundColor Red }
         }
 

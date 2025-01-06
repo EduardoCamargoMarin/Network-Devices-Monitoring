@@ -15,5 +15,5 @@
 5. 1.1.0 - Added Windows Defender Scan and Windows update | New UI for the main menu | Added a basic package installer with (google chrome, firefox, vlc, adobereader, jr8 and zoom)
 
 # Roadmap for future features
-...
-
+1. Command to give Local Network settings
+2. Add "Tracert" command

@@ -1,6 +1,3 @@
-# Network Device Monitoring
-Scripts regarding computer network tests and automation procedures.
-
 # How to use
 1. upload the .ps1 file on the user's computer
 2. Right click on the file and select "Execute with Power Shell"

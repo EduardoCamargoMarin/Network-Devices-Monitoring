@@ -13,10 +13,26 @@ $logFile = Join-Path -Path $logDir -ChildPath "MonitoramentoDeDispositivos_$(Get
 
 
 # Basic test connections
-$targets = @("google.com", "8.8.8.8", "1.1.1.1", "ntp.br")
+$targets = @("google.com", "8.8.8.8", "1.1.1.1", "200.160.0.8")
 
 # DNS settings validation test
-$dnsHost = @("uol.com", "ntp.br", "meuip.com")
+$dnsHost = @("uol.com", "ntp.br", "meuip.com", "youtube.com") #IPV6 and IPV4 websites
+
+
+function Network-Data {
+    $IPAddress = ipconfig
+    $ValidIP = iwr ipinfo.io/ip
+
+    foreach ($output in $IPAddress) {
+        if($output -match "Adaptador|IPv4|IPv6|Máscara|Gateway Padrão") { # will match the following text for better view.
+            Write-Host $output -ForegroundColor Yellow
+    }
+    }
+    Write-Host "=============================="
+    Write-Host ""
+    Write-Host "IP Público:" -ForegroundColor Cyan
+    Write-Host $ValidIP -ForegroundColor Yellow
+}
 
 
 # DNS Validation
@@ -54,6 +70,7 @@ Add-Content -Path $logFile -Value ""
 
 # Connectivity Test
 function Connectivity-Test {
+    
 foreach ($target in $targets) {
     Write-Host ""
     Write-Host "Testando conectividade com $target..." -ForegroundColor Yellow
@@ -75,14 +92,45 @@ foreach ($target in $targets) {
         Add-Content -Path $logFile -Value $errorMessage
         Write-Host $errorMessage -ForegroundColor Red
     }
+
     Add-Content -Path $logFile -Value ""
     Add-Content -Path $logFile -Value "[$(Get-Date)] $message"
     Add-Content -Path $logFile -Value ""
+
+
 }
 }
 
 Add-Content -Path $logFile -Value "---------------------------------"
 Add-Content -Path $logFile -Value "Monitoramento de dispositivos em [$(Get-Date)]"
+
+
+function Route-Tracert {
+    $target = "8.8.8.8"
+    Write-Host "Executando rastreamento de rota para $target... Por favor aguardar o resultado" -ForegroundColor Cyan
+
+    try {
+        # Initialize Tracert and show the results by the end of the test.
+        $traceResult = tracert $target | ForEach-Object { $_ } # Return the result for the "tracert" command.
+
+        Write-Host "Resultados do rastreamento de rota para $target :" -ForegroundColor Yellow
+
+        foreach ($line in $traceResult) {
+            Write-Host $line -ForegroundColor Green
+        }
+
+        # Log saved
+        Add-Content -Path $logFile -Value "Rastreamento de rota para $target em [$(Get-Date)]:"
+        $traceResult | ForEach-Object {
+            Add-Content -Path $logFile -Value $_
+        }
+    }
+    catch {
+        $errorMessage = "[ $target ] Erro ao executar rastreamento de rota: $($_.Exception.Message)"
+        Write-Host $errorMessage -ForegroundColor Red
+        Add-Content -Path $logFile -Value $errorMessage
+    }
+}
 
 
 # ICMP protocol on Endpoints
@@ -175,24 +223,30 @@ function Is-ProgramInstalled {
 function Install-Programs-Menu {
     while($true) {
         Clear-Host
-        Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "          Pacotes de instalação         " -ForegroundColor Cyan
-        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host "           Softwares para TI             " -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "1. Advanced IP Scanner"
+        Write-Host " 1. Advanced IP Scanner"
         Write-Host ""
-        Write-Host "2. Crystal Disk Info"
+        Write-Host " 2. Crystal Disk Info"
         Write-Host ""
-        Write-Host "3. Nmap"
+        Write-Host " 3. Nmap"
         Write-Host ""
-        Write-Host "4. WireShark"
+        Write-Host " 4. WireShark"
         Write-Host ""
-        Write-Host "5. Rufus"
+        Write-Host " 5. Rufus"
         Write-Host ""
-        Write-Host "6. Básico (Chrome, Firefox, AdobeReader, VLC, Jr8, Zoom, Winrar)"
+        Write-Host " 6. Acesso remoto (Anydesk, TeamViewer)"
         Write-Host ""
-        Write-Host "7. Voltar"
-        $opcao = Read-Host "Escolha uma opção"
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host "           Pacotes de instalação             " -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host " 7. Básico (Chrome, Firefox, AdobeReader, VLC, Jr8, Zoom, Winrar)"
+        Write-Host ""
+        Write-Host " 8. Voltar"
+        $opcao = Read-Host " Escolha uma opção (1-8)"
 
         switch($opcao) {
         
@@ -283,6 +337,26 @@ function Install-Programs-Menu {
           }
 
         "6" { 
+            $programs = @("anydesk", "teamviewer")
+    
+            foreach ($program in $programs) {
+                if (Is-ProgramInstalled -programName $program) {
+                    Write-Host "$program já está instalado." -ForegroundColor Yellow
+             } else {
+                 try {
+                        Write-Host "Instalando $program..." -ForegroundColor Green
+                     choco install $program -y
+                     Write-Host "$program instalado com sucesso!" -ForegroundColor Green
+                  } 
+                 catch {
+                    # if an error occurs, you must download the program by hand.
+                     Write-Host "Erro ao instalar $program : $($_.Exception.Message)" -ForegroundColor Red
+            }
+        }
+    }
+ }
+
+        "7" { 
             $programs = @("winrar", "googlechrome", "firefox", "vlc", "adobereader", "jre8", "zoom")
     
             foreach ($program in $programs) {
@@ -300,10 +374,8 @@ function Install-Programs-Menu {
             }
         }
     }
-            }
-        "7" { return menu}
-        
-        
+ }
+        "8" { return menu}              
   }
  }
 }
@@ -367,7 +439,7 @@ function Windows-Update {
             Write-Host "Atualizações instaladas com sucesso!" -ForegroundColor Green
         }
         else {
-            Write-Host "Instalação não realizada. Nenhuma atualização disponível" -ForegroundColor Red
+            Write-Host "Instalação não realizada." -ForegroundColor Red
         }
     }
 }
@@ -384,34 +456,41 @@ catch {
 function menu {
     while ($true) {
         Clear-Host
-        Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "          Menu de Monitoramento         " -ForegroundColor Cyan
-        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host "       Menu de Verificação da rede     " -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "1. Validação de DNS"
+        Write-Host " 0. Dados da rede local (LAN)"
         Write-Host ""
-        Write-Host "2. Configuração da rede para teste de dispositivos"
+        Write-Host " 1. Validação de DNS"
         Write-Host ""
-        Write-Host "3. Verificação dos status dos dispositivos na rede (Requer a configuração do item 2)"
+        Write-Host " 2. Configuração da rede para teste de dispositivos"
         Write-Host ""
-        Write-Host "4. Teste de conectividade para internet"
+        Write-Host " 3. Verificação dos status dos dispositivos na rede (Requer a configuração do item 2)"
         Write-Host ""
-        Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "          Menu do computador            " -ForegroundColor Cyan
-        Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "5. Pacotes de instalação"
+        Write-Host " 4. Teste de conectividade para internet"
         Write-Host ""
-        Write-Host "6. Verificação Rápida do Windows Defender (recomendado)"
+        Write-Host " 5. Rastreamento de rotas na rede"
         Write-Host ""
-        Write-Host "7. Verificação Completa do Windows Defender (Processo demorado. Usar em último recurso)"
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host "       Menu do Computador local          " -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "8. Executar Windows Update"
+        Write-Host " 6. Pacotes de instalação"
         Write-Host ""
-        Write-Host "9. Sair"
+        Write-Host " 7. Verificação Rápida do Windows Defender (recomendado)"
         Write-Host ""
-        $opcao = Read-Host "Escolha uma opção"
+        Write-Host " 8. Verificação Completa do Windows Defender (Processo demorado. Usar em último recurso)"
+        Write-Host ""
+        Write-Host " 9. Executar Windows Update"
+        Write-Host ""
+        Write-Host " 10. Sair"
+        Write-Host ""
+        $opcao = Read-Host " Escolha uma opção (1-10)"
 
         switch ($opcao) {
+
+            "0" { Network-Data }
 
             "1" { 
                 DNS-Validation 
@@ -444,19 +523,20 @@ function menu {
                 Connectivity-Test 
                 Write-Host "Teste concluído. Resultados salvos em $logFile" -ForegroundColor Green
                 }
+            "5" {Route-Tracert}
             
-            "5" { 
+            "6" { 
                 Chocolatey
                 Install-Programs-Menu 
                 }
 
-            "6" { Run-QuickScan }
+            "7" { Run-QuickScan }
 
-            "7" { Run-FullScan }
+            "8" { Run-FullScan }
 
-            "8" { Windows-Update }
+            "9" { Windows-Update }
 
-            "9" { 
+            "10" { 
                 Write-Host "Saindo..." -ForegroundColor Yellow 
                 Exit
              }

@@ -1,7 +1,7 @@
 ﻿# Monitoring Devices on your network and test network basic connections
 
 # Log Directory
-$logDiR = "C:\Scripts"
+$logDiR = "C:\Network Diagnostics\Network Device Monitoring\Logs"
 
 
 # It Creates a separated log each day
@@ -9,7 +9,7 @@ if(!(Test-Path -Path $logDiR)) {
     New-Item -ItemType Directory -Path $logDiR | Out-Null
 }
 
-$logFile = Join-Path -Path $logDir -ChildPath "MonitoramentoDeDispositivos_$(Get-Date -Format 'dd-MM-yyyy').log"
+$logFile = Join-Path -Path $logDir -ChildPath "Log_$(Get-Date -Format 'dd-MM-yyyy').log"
 
 
 # Basic test connections
@@ -224,7 +224,7 @@ function Install-Programs-Menu {
     while($true) {
         Clear-Host
         Write-Host " ========================================" -ForegroundColor Cyan
-        Write-Host "           Softwares para TI             " -ForegroundColor Cyan
+        Write-Host "            Softwares para TI            " -ForegroundColor Cyan
         Write-Host " ========================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host " 1. Advanced IP Scanner"
@@ -245,8 +245,14 @@ function Install-Programs-Menu {
         Write-Host ""
         Write-Host " 7. Básico (Chrome, Firefox, AdobeReader, VLC, Jr8, Zoom, Winrar)"
         Write-Host ""
-        Write-Host " 8. Voltar"
-        $opcao = Read-Host " Escolha uma opção (1-8)"
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host "         Scripts de Monitoramento             " -ForegroundColor Cyan
+        Write-Host " ========================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host " 8. Snitcher (Comunica quando uma Central está offline com envio de mensagem para o Telegram)"
+        Write-Host ""
+        Write-Host " 9. Voltar"
+        $opcao = Read-Host " Escolha uma opção (1-9)"
 
         switch($opcao) {
         
@@ -355,6 +361,26 @@ function Install-Programs-Menu {
         }
     }
  }
+        "8" {
+
+                $folderPath = "C:\Network Diagnostics\Snitcher"
+
+    
+                if (-not (Test-Path -Path $folderPath)) {
+                    New-Item -Path $folderPath -ItemType Directory
+                    Write-Host "Diretório criado em $folderPath"
+                } else {
+                 Write-Host "O diretório já existe."
+               }
+
+                $downloadUrl = "https://raw.githubusercontent.com/EduardoCamargoMarin/Snitcher/main/Snitcher.ps1"
+                $destinationPath = "$folderPath\Snitcher.ps1"
+
+    
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath
+                Write-Host "Script baixado com sucesso em $destinationPath"       
+
+            }
 
         "7" { 
             $programs = @("winrar", "googlechrome", "firefox", "vlc", "adobereader", "jre8", "zoom")
@@ -375,7 +401,7 @@ function Install-Programs-Menu {
         }
     }
  }
-        "8" { return menu}              
+        "9" { return menu}              
   }
  }
 }
@@ -457,7 +483,7 @@ function menu {
     while ($true) {
         Clear-Host
         Write-Host " ========================================" -ForegroundColor Cyan
-        Write-Host "       Menu de Verificação da rede     " -ForegroundColor Cyan
+        Write-Host "       Menu de Monitoramento da Rede     " -ForegroundColor Cyan
         Write-Host " ========================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host " 0. Dados da rede local (LAN)"
@@ -473,7 +499,7 @@ function menu {
         Write-Host " 5. Rastreamento de rotas na rede"
         Write-Host ""
         Write-Host " ========================================" -ForegroundColor Cyan
-        Write-Host "       Menu do Computador local          " -ForegroundColor Cyan
+        Write-Host "       Menu do Computador Local          " -ForegroundColor Cyan
         Write-Host " ========================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host " 6. Pacotes de instalação"
@@ -484,9 +510,10 @@ function menu {
         Write-Host ""
         Write-Host " 9. Executar Windows Update"
         Write-Host ""
+
         Write-Host " 10. Sair"
         Write-Host ""
-        $opcao = Read-Host " Escolha uma opção (1-10)"
+        $opcao = Read-Host " Escolha uma opção (0-10)"
 
         switch ($opcao) {
 
